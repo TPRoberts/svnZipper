@@ -15,19 +15,9 @@ import shutil
 import pysvn
 import zipfile
 import colorama
+from subprocess import call
 
-# Saved Data File
-saveData=".nightlyZipper"
-
-htcM8Svn = "http://www.soldier9312-xda.de/svn/leedroid-m8/trunk"
-htcM9Svn = "http://www.soldier9312-xda.de/svn/leedroid-m9/trunk"
-htc10Svn = "http://www.soldier9312-xda.de/svn/leedroid-10/trunk"
-
-destM8Checkout = "HTC_M8_Trunk"
-destM9Checkout = "HTC_M9_Trunk"
-dest10Checkout = "HTC_10_Trunk"
-
-colorama.init()
+# ASCII Colors for the terminal
 class bcolors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
@@ -37,7 +27,11 @@ class bcolors:
     ENDC = '\033[0m'
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
-
+    
+# welcome
+# Input:- None
+# Output:- None
+# Prints welcome headeer for LeeDrOiD
 def welcome():
 	print bcolors.OKGREEN +  "$$\\                           $$$$$$$\\             $$$$$$\\  $$\\ $$$$$$$\\        $$\\   $$\\ $$\\           $$\\         $$\\     $$\\           " + bcolors.ENDC
 	print bcolors.OKGREEN +  "$$ |                          $$  __$$\\           $$  __$$\\ \\__|$$  __$$\\       $$$\\  $$ |\\__|          $$ |        $$ |    $$ |          " + bcolors.ENDC
@@ -142,6 +136,24 @@ if __name__ == "__main__":
 	# Warning: This is a warning
 	# Error: This is a error
 	logging.basicConfig(stream=sys.stdout, level=logging.INFO, format='%(levelname)s: %(message)s')
+    
+    # Init coloama for ASCII colours in the terminal
+	colorama.init()
+    # Remote SVN locations
+	htcM8Svn = "http://www.soldier9312-xda.de/svn/leedroid-m8/trunk"
+	htcM9Svn = "http://www.soldier9312-xda.de/svn/leedroid-m9/trunk"
+	htc10Svn = "http://www.soldier9312-xda.de/svn/leedroid-10/trunk"
+     
+	# Checkout folders
+	destM8Checkout = "HTC_M8_Trunk"
+	destM9Checkout = "HTC_M9_Trunk"
+	dest10Checkout = "HTC_10_Trunk"
+
+	if (os.name == "nt"):
+		windows = True
+		call(["mode", "140,60"], shell=True)
+	else:
+		windows = False
 
 
 	while (1):
