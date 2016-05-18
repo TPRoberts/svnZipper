@@ -2,3 +2,6 @@ HTC_10_Trunk/*
 HTC_M8_Trunk/*
 HTC_M9_Trunk/*
 *.zip
+build/*
+dist/*
+*.spec

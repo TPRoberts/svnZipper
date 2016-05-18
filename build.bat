@@ -1,1 +1,1 @@
-pyinstaller.exe --onefile --icon=icon.png --version-file=version.txt svnZipper.py
+pyinstaller.exe --onefile --icon=icon.ico --version-file=version.txt svnZipper.py
