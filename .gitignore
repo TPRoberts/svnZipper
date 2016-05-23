@@ -5,3 +5,5 @@ HTC_M9_Trunk/*
 build/*
 dist/*
 *.spec
+*.cfg
+*.exe
