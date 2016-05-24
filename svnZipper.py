@@ -18,6 +18,9 @@ import colorama
 import time
 import ConfigParser
 import md5
+import Tkinter
+import tkFileDialog
+import hashlib
 from subprocess import call
 from multiprocessing.pool import ThreadPool
 
@@ -87,7 +90,7 @@ def cls():
 def mainMenu():
 	cls()
 	welcome()
-	menuItems = ["Build HTC 10 Nightly zip", "Build HTC One M9 Nightly zip", "Build HTC One M8 Nightly zip", "Configure working repositories", "Exit"]
+	menuItems = ["Build "+bcolors.OKGREEN+"HTC 10"+bcolors.ENDC+" Nightly zip", "Build "+bcolors.OKGREEN+"HTC One M9"+bcolors.ENDC+" Nightly zip", "Build "+bcolors.OKGREEN+"HTC One M8"+bcolors.ENDC+" Nightly zip", "Configure working and build directories", "Exit"]
 	i = 1
 
 	print "Choice one of the following options:"
@@ -125,13 +128,17 @@ def mainMenu():
 def buildZip(src, dst):
 	zf = zipfile.ZipFile("%s.zip" % (dst), "w", zipfile.ZIP_DEFLATED)
 	abs_src = os.path.abspath(src)
-	exclude = [".svn"]
-	excludeFiles = ["UpdateAndBuild.bat"]
+	exclude = [".svn", "libs", "Builds"]
+	#excludeFiles = ["UpdateAndBuild.bat", "svnZipper.exe", "svnZipper.cfg"]
 	total = 0
 	for dirname, subdirs, files in os.walk(src):
 		subdirs[:] = [d for d in subdirs if d not in exclude]
 		for filename in files:
-			if filename not in excludeFiles:
+			if filename == "supersu.zip":
+				absname = os.path.abspath(os.path.join(dirname, filename))
+				arcname = absname[len(abs_src) + 1:]
+				total += os.path.getsize(absname)
+			if not filename.endswith( ('.bat','.exe', 'zip', '.cfg', '.zip.md5', '.md5') ):
 				absname = os.path.abspath(os.path.join(dirname, filename))
 				arcname = absname[len(abs_src) + 1:]
 				total += os.path.getsize(absname)
@@ -140,7 +147,15 @@ def buildZip(src, dst):
 	for dirname, subdirs, files in os.walk(src):
 		subdirs[:] = [d for d in subdirs if d not in exclude]
 		for filename in files:
-			if filename not in excludeFiles:
+			if filename == "supersu.zip":
+				absname = os.path.abspath(os.path.join(dirname, filename))
+				arcname = absname[len(abs_src) + 1:]
+				percent = 100 * current / total
+				sys.stdout.write("%sPROGRESS: %d%%   \r%s"% (bcolors.OKGREEN, percent, bcolors.ENDC))
+				sys.stdout.flush()
+				zf.write(absname, arcname)
+				current += os.path.getsize(absname)	
+			if not filename.endswith( ('.bat','.exe', '.zip', '.cfg', '.zip.md5', '.md5') ):
 				absname = os.path.abspath(os.path.join(dirname, filename))
 				arcname = absname[len(abs_src) + 1:]
 				percent = 100 * current / total
@@ -224,7 +239,32 @@ def queryYesNo(question, default="yes"):
             sys.stdout.write("Please respond with 'yes' or 'no' "
                              "(or 'y' or 'n').\n")
 
+def md5(zipPath, zipName):
+	fname = zipPath + ".zip"
+	hash_md5 = hashlib.md5()
+	with open(fname, "rb") as f:
+		for chunk in iter(lambda: f.read(4096), b""):
+			hash_md5.update(chunk)
+			
+	f = open(zipPath+".zip"+".md5", 'w')
+	f.write(hash_md5.hexdigest()+ " *"+ zipName + ".zip")
+	f.close()
 
+def makeMd5Sum(path, zipName):
+	pool = ThreadPool(processes=1)
+	async_result = pool.apply_async(md5, (path, zipName))
+	while async_result.ready() == False:
+		sys.stdout.write("%sPROCESS: Making MD5 checksum %s.zip.md5 file   \r%s"% (bcolors.OKGREEN, path, bcolors.ENDC))
+		time.sleep(1)
+		sys.stdout.write("%sPROCESS: Making MD5 checksum %s.zip.md5 file.   \r%s"% (bcolors.OKGREEN, path, bcolors.ENDC))
+		time.sleep(1)
+		sys.stdout.write("%sPROCESS: Making MD5 checksum %s.zip.md5 file..   \r%s"% (bcolors.OKGREEN, path, bcolors.ENDC))
+		time.sleep(1)
+		sys.stdout.write("%sPROCESS: Making MD5 checksum %s.zip.md5 file...   \r%s"% (bcolors.OKGREEN, path, bcolors.ENDC))
+		time.sleep(1)
+		sys.stdout.flush()
+	sys.stdout.flush()
+	logging.info("MD5 file %s.zip.md5 saved					 					", path)
 
 # Check Arguments
 # Input:- Source directory
@@ -288,6 +328,8 @@ if __name__ == "__main__":
 	
 	# Build folders
 	builds = config.get('SVNZipper', 'builds')
+	if not os.path.isdir(builds):
+		os.makedirs(builds)
 
 
 	if (os.name == "nt"):
@@ -321,28 +363,58 @@ if __name__ == "__main__":
 			origonalFileCount = getFileCount(workingDest)
 		elif returnOption == "config":
 			# We have no arguments pass to use we will prompt the user
-			print "Enter in the full path of your working repository, for example C:\\HTCM8Working.\nIf you do not want to enter working repository for the configuration press enter to skip.\n"
-			HTC10Working = raw_input("Please enter your working repository for LeeDrOiD's HTC 10 ROM: ")
-			m9Working = raw_input("Please enter your working repository for LeeDrOiD's M9 ROM: ")
-			m8Working = raw_input("Please enter your working repository for LeeDrOiD's M8 ROM: ")
-			print "\nEnter in the full path of your build directory, this where all your zips will be stored, for example C:\\Builds.\n"
-			buildsPath = raw_input("Please enter your zip build directory: ")
-
-			if m8Working == "":
-				m8Working = workingDir
+			
+			if queryYesNo("QUESTION: Set HTC 10 working directory? "):
+				root = Tkinter.Tk()
+				root.withdraw() # hide root
+				HTC10Working = tkFileDialog.askdirectory(parent=root,initialdir=workingDir,title="Please select working directory for LeeDrOiD's HTC 10 ROM")
+				root.destroy()
 			else:
-				checkArgs(m8Working)
-			if m9Working == "":
-				m9Working = workingDir
-			else:
-				checkArgs(m9Working)
+				HTC10Working = ""
 			if HTC10Working == "":
-				HTC10Working = workingDir
+				HTC10Working = os.path.realpath(dest10Checkout)
+				logging.info("HTC 10 working directory was skipped %s will be used", HTC10Working)
 			else:
+				logging.info("HTC 10 working directory set to %s", HTC10Working)
 				checkArgs(HTC10Working)
-			if buildsPath == "":
-				buildsPath = os.path.realpath(workingDir +"/"+"Builds")
+			if queryYesNo("QUESTION: Set HTC M9 working directory? "):
+				root = Tkinter.Tk()
+				root.withdraw() # hide root
+				m9Working = tkFileDialog.askdirectory(parent=root,initialdir=workingDir,title="Please select working directory for LeeDrOiD's HTC M9 ROM")
+				root.destroy()
 			else:
+				m9Working = ""
+			if m9Working == "":
+				m9Working = os.path.realpath(destM9Checkout)
+				logging.info("HTC M9 working directory was skipped %s will be used", m9Working)
+			else:
+				logging.info("HTC M9 working directory set to %s", m9Working)
+				checkArgs(m9Working)
+			if queryYesNo("QUESTION: Set HTC M8 working directory? "):
+				root = Tkinter.Tk()
+				root.withdraw() # hide root
+				m8Working = tkFileDialog.askdirectory(parent=root,initialdir=workingDir,title="Please select working directory for LeeDrOiD's HTC M8 ROM")
+				root.destroy()
+			else:
+				m8Working = ""
+			if m8Working == "":
+				m8Working = os.path.realpath(destM8Checkout)
+				logging.info("HTC M8 working directory was skipped %s will be used", m8Working)
+			else:
+				logging.info("HTC M8 working directory set to %s", m8Working)
+				checkArgs(m8Working)
+			if queryYesNo("QUESTION: Set directory where your builds (zips) will be stored? "):
+				root = Tkinter.Tk()
+				root.withdraw() # hide root
+				buildsPath = tkFileDialog.askdirectory(parent=root,initialdir=workingDir,title="Please select your build directory")
+				root.destroy()
+			else:
+				buildsPath = ""
+			if buildsPath == "":
+				buildsPath = os.path.realpath(builds)
+				logging.info("Build directory was skipped %s will be used", buildsPath)
+			else:
+				logging.info("Build directory set to %s", buildsPath)
 				checkArgs(buildsPath)
 				
 			config.set('SVNZipper', 'destM8Checkout', os.path.realpath(m8Working))
@@ -362,6 +434,8 @@ if __name__ == "__main__":
 			
 			# Build folders
 			builds = config.get('SVNZipper', 'builds')
+			
+			raw_input("\nPress Enter to Return to the Main Menu...")
 		elif returnOption == "exit":
 			cls()
 			sys.exit()
@@ -370,6 +444,13 @@ if __name__ == "__main__":
 			if not os.path.isdir(workingDest):
 				logging.warning("%s does not exist, so this directory will be made", workingDest)
 				os.makedirs(workingDest)
+			try:
+				getRemoteRevision(svnClient, workingDest) == getLocalRevision(svnClient, workingDest)
+				isWorking = True
+			except:
+				isWorking = False
+				
+			if not isWorking:
 				logging.info("Checking out %s", Svn)
 
 				pool = ThreadPool(processes=1)
@@ -436,7 +517,9 @@ if __name__ == "__main__":
 						sys.stdout.flush()
 					sys.stdout.flush()
 					logging.info("Finsihed updated %s", workingDest)
-
+			
+			if not os.path.isdir(builds):
+				os.makedirs(builds)
 			zipName = zipPrefix + "_R%d" % (getLocalRevision(svnClient, workingDest))
 			zipPath = os.path.join(builds, zipName)
 			if os.path.exists(zipPath+".zip"):
@@ -446,12 +529,20 @@ if __name__ == "__main__":
 				if forceZip:
 					logging.warning("Removing old %s.zip", zipPath)
 					os.remove(zipPath+".zip")
+					if os.path.isfile(zipPath+".zip.md5"):
+						logging.warning("Removing old %s.zip.md5", zipPath)
+						os.remove(zipPath+".zip.md5")
 					logging.info("Making %s.zip", zipPath)
 					buildZip(workingDest, zipPath)
+					if os.path.isfile(zipPath+".zip"):
+						logging.info("Making MD5 checksum")
+						makeMd5Sum(zipPath, zipName)
 			else:
 				logging.info("Making %s.zip", zipPath)
 				buildZip(workingDest, zipPath)
-				
-			
+				if os.path.isfile(zipPath+".zip"):
+					logging.info("Making MD5 checksum")
+					makeMd5Sum(zipPath, zipName)
+					
 			raw_input("\nPress Enter to Return to the Main Menu...")
 		cls()
