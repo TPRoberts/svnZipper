@@ -152,7 +152,7 @@ def buildZip(src, dst):
 	for dirname, subdirs, files in os.walk(src):
 		subdirs[:] = [d for d in subdirs if d not in exclude]
 		for filename in files:
-			if not ((dirname == src) and (filename.endswith( ('.bat','.exe', 'zip', '.cfg', '.zip.md5', '.md5') ))):
+			if not ((dirname == src) and (filename.endswith( ('.bat','.exe', 'zip', '.cfg', '.zip.md5', '.md5', 'linuxSvnZipper', 'svnZipper') ))):
 				absname = os.path.abspath(os.path.join(dirname, filename))
 				arcname = absname[len(abs_src) + 1:]
 				total += os.path.getsize(absname)
@@ -161,7 +161,7 @@ def buildZip(src, dst):
 	for dirname, subdirs, files in os.walk(src):
 		subdirs[:] = [d for d in subdirs if d not in exclude]
 		for filename in files:
-			if not ((dirname == src) and (filename.endswith( ('.bat','.exe', 'zip', '.cfg', '.zip.md5', '.md5') ))):
+			if not ((dirname == src) and (filename.endswith( ('.bat','.exe', 'zip', '.cfg', '.zip.md5', '.md5', 'linuxSvnZipper', 'svnZipper') ))):
 				absname = os.path.abspath(os.path.join(dirname, filename))
 				arcname = absname[len(abs_src) + 1:]
 				percent = 100 * current / total
@@ -329,7 +329,7 @@ if __name__ == "__main__":
 		call(["mode", "140,60"], shell=True)
 	else:
 		windows = False
-		call(["echo - e \"\e[8;140;60t\""], shell=True)
+		print "\x1b[8;60;140t"
 		
 	device = None
 	localRepoUrl = None
