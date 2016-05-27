@@ -1,10 +1,10 @@
 #! /usr/bin/python -B
 
 ###############################################################
-########				 svnZipper.py				  ########
-########			 Made by Thomas Roberts			######## 
-########				  17/02/2016				   ########
-########				 Version  0.1				   ########	
+########				 svnZipper.py				   ########
+########			 Made by Thomas Roberts			   ######## 
+########				  27/05/2016				   ########
+########				 Version  1.1				   ########	
 ###############################################################
 
 
@@ -16,10 +16,7 @@ import pysvn
 import zipfile
 import colorama
 import time
-import ConfigParser
 import md5
-import Tkinter
-import tkFileDialog
 import hashlib
 from subprocess import call
 from multiprocessing.pool import ThreadPool
@@ -87,12 +84,19 @@ def cls():
 # Input:- None
 # Output:- Returns a ID (string)
 # Description: Display main menu items
-def mainMenu():
+def mainMenu(device):
 	cls()
 	welcome()
-	menuItems = ["Build "+bcolors.OKGREEN+"HTC 10"+bcolors.ENDC+" Nightly zip", "Build "+bcolors.OKGREEN+"HTC One M9"+bcolors.ENDC+" Nightly zip", "Build "+bcolors.OKGREEN+"HTC One M8"+bcolors.ENDC+" Nightly zip", "Configure working and build directories", "Exit"]
+	if device == "m8":
+		menuItems = ["Build "+bcolors.OKGREEN+"HTC One M8"+bcolors.ENDC+" Nightly zip", "Exit"]
+	elif device == "m9":
+		menuItems = ["Build "+bcolors.OKGREEN+"HTC One M9"+bcolors.ENDC+" Nightly zip", "Exit"]
+	elif device == "htc10":
+		menuItems = ["Build "+bcolors.OKGREEN+"HTC 10"+bcolors.ENDC+" Nightly zip", "Exit"]
+	else:
+		menuItems = ["Build "+bcolors.OKGREEN+"HTC 10"+bcolors.ENDC+" Nightly zip", "Build "+bcolors.OKGREEN+"HTC One M9"+bcolors.ENDC+" Nightly zip", "Build "+bcolors.OKGREEN+"HTC One M8"+bcolors.ENDC+" Nightly zip", "Exit"]
+		
 	i = 1
-
 	print "Choice one of the following options:"
 	for item in menuItems:
 		print "%d. %s" % (i, menuItems[i-1])
@@ -108,17 +112,33 @@ def mainMenu():
 			logging.debug("You selected option %d '%s'", option,menuItems[option-1])
 	except ValueError:
 		logging.error("%s is not a valid option", option)
-
-	if option == 1:
-		return "10"
-	elif option == 2:
-		return "m9"
-	elif option == 3:
-		return "m8"
-	elif option == 4:
-		return "config"
-	elif option == 5:
-		return "exit"
+		
+	if device == "m8":
+		if option == 1:
+			return "m8"
+		elif option == 2:
+			return "exit"
+	elif device == "m9":
+		if option == 1:
+			return "m9"
+		elif option == 2:
+			return "exit"
+	elif device == "htc10":
+		if option == 1:
+			return "10"
+		elif option == 2:
+			return "exit"
+	else:
+		if option == 1:
+			return "10"
+		elif option == 2:
+			return "m9"
+		elif option == 3:
+			return "m8"
+		elif option == 4:
+			return "config"
+		elif option == 5:
+			return "exit"
 
 
 # Build the zip
@@ -283,25 +303,12 @@ if __name__ == "__main__":
 	
 	# Current directory
 	workingDir = os.path.dirname(os.path.realpath(__file__))
-	
-	# Configuration
-	config = ConfigParser.RawConfigParser()
-	configFile="svnZipper.cfg"
-	
-	if not os.path.isfile(configFile):
-		config.add_section('SVNZipper')
-		config.set('SVNZipper', 'destM8Checkout', os.path.realpath(workingDir))
-		config.set('SVNZipper', 'destM9Checkout', os.path.realpath(workingDir))
-		config.set('SVNZipper', 'dest10Checkout', os.path.realpath(workingDir))
-		
-		config.set('SVNZipper', 'builds', os.path.realpath(workingDir +"/"+"Builds"))
-		
-		# Writing our configuration file to 'example.cfg'
-		with open(configFile, 'wb') as configfile:
-			config.write(configfile)
     
     # Init coloama for ASCII colours in the terminal
 	colorama.init()
+	
+	# initiate pysvn client
+	svnClient = pysvn.Client()
 	
     # Remote SVN locations
 	htcM8Svn = "http://www.soldier9312-xda.de/svn/leedroid-m8/trunk"
@@ -309,13 +316,12 @@ if __name__ == "__main__":
 	htc10Svn = "http://www.soldier9312-xda.de/svn/leedroid-10/trunk"
      
 	# Checkout folders
-	config.read(configFile)
-	destM8Checkout = config.get('SVNZipper', 'destM8Checkout')
-	destM9Checkout = config.get('SVNZipper', 'destM9Checkout')
-	dest10Checkout = config.get('SVNZipper', 'dest10Checkout')
+	destM8Checkout = workingDir
+	destM9Checkout = workingDir
+	dest10Checkout = workingDir
 	
 	# Build folders
-	builds = config.get('SVNZipper', 'builds')
+	builds = os.path.join(workingDir, "Builds")
 	if not os.path.isdir(builds):
 		os.makedirs(builds)
 
@@ -325,105 +331,53 @@ if __name__ == "__main__":
 		call(["mode", "140,60"], shell=True)
 	else:
 		windows = False
+		call(["echo - e \"\e[8;140;60t\""], shell=True)
+		
+	device = None
+	localRepoUrl = None
+	# Determin which repo we are in
+	try:
+		getLocalRevision(svnClient, workingDir)
+		isWorking = True
+	except:
+		isWorking = False
+		
+	if isWorking:
+		localRepoUrl = svnClient.root_url_from_path(workingDir) + "/trunk"
+	else:
+		localRepoUrl = "all"
 
+	if localRepoUrl == htcM8Svn:
+		device = "m8"
+	elif localRepoUrl == htcM9Svn:
+		device = "m9"
+	elif localRepoUrl == htc10Svn:
+		device = "htc10"
+	else:
+		device = "all"
 
 	while (1):
 		# Display the Main Menu
-		returnOption = mainMenu()
+		returnOption = mainMenu(device)
 
 		cls()
 		welcome()
-		svnClient = pysvn.Client()
+		
 		if returnOption == "10":
-			workingDest = os.path.join(workingDir, dest10Checkout)
+			workingDest = dest10Checkout
 			Svn = htc10Svn
 			zipPrefix = "LeeDrOiD_10"
 			origonalFileCount = getFileCount(workingDest)
 		elif returnOption == "m9":
-			workingDest = os.path.join(workingDir, destM8Checkout)
+			workingDest =  destM9Checkout
 			Svn = htcM9Svn
 			zipPrefix = "LeeDrOiD_M9"
 			origonalFileCount = getFileCount(workingDest)
 		elif returnOption == "m8":
-			workingDest = os.path.join(workingDir, destM8Checkout)
+			workingDest =  destM8Checkout
 			Svn = htcM8Svn
 			zipPrefix = "LeeDrOiD_M8"
 			origonalFileCount = getFileCount(workingDest)
-		elif returnOption == "config":
-			# We have no arguments pass to use we will prompt the user
-			
-			if queryYesNo("QUESTION: Set HTC 10 working directory? "):
-				root = Tkinter.Tk()
-				root.withdraw() # hide root
-				HTC10Working = tkFileDialog.askdirectory(parent=root,initialdir=workingDir,title="Please select working directory for LeeDrOiD's HTC 10 ROM")
-				root.destroy()
-			else:
-				HTC10Working = ""
-			if HTC10Working == "":
-				HTC10Working = os.path.realpath(dest10Checkout)
-				logging.info("HTC 10 working directory was skipped %s will be used", HTC10Working)
-			else:
-				logging.info("HTC 10 working directory set to %s", HTC10Working)
-				checkArgs(HTC10Working)
-			if queryYesNo("QUESTION: Set HTC M9 working directory? "):
-				root = Tkinter.Tk()
-				root.withdraw() # hide root
-				m9Working = tkFileDialog.askdirectory(parent=root,initialdir=workingDir,title="Please select working directory for LeeDrOiD's HTC M9 ROM")
-				root.destroy()
-			else:
-				m9Working = ""
-			if m9Working == "":
-				m9Working = os.path.realpath(destM9Checkout)
-				logging.info("HTC M9 working directory was skipped %s will be used", m9Working)
-			else:
-				logging.info("HTC M9 working directory set to %s", m9Working)
-				checkArgs(m9Working)
-			if queryYesNo("QUESTION: Set HTC M8 working directory? "):
-				root = Tkinter.Tk()
-				root.withdraw() # hide root
-				m8Working = tkFileDialog.askdirectory(parent=root,initialdir=workingDir,title="Please select working directory for LeeDrOiD's HTC M8 ROM")
-				root.destroy()
-			else:
-				m8Working = ""
-			if m8Working == "":
-				m8Working = os.path.realpath(destM8Checkout)
-				logging.info("HTC M8 working directory was skipped %s will be used", m8Working)
-			else:
-				logging.info("HTC M8 working directory set to %s", m8Working)
-				checkArgs(m8Working)
-			if queryYesNo("QUESTION: Set directory where your builds (zips) will be stored? "):
-				root = Tkinter.Tk()
-				root.withdraw() # hide root
-				buildsPath = tkFileDialog.askdirectory(parent=root,initialdir=workingDir,title="Please select your build directory")
-				root.destroy()
-			else:
-				buildsPath = ""
-			if buildsPath == "":
-				buildsPath = os.path.realpath(builds)
-				logging.info("Build directory was skipped %s will be used", buildsPath)
-			else:
-				logging.info("Build directory set to %s", buildsPath)
-				checkArgs(buildsPath)
-				
-			config.set('SVNZipper', 'destM8Checkout', os.path.realpath(m8Working))
-			config.set('SVNZipper', 'destM9Checkout', os.path.realpath(m9Working))
-			config.set('SVNZipper', 'dest10Checkout', os.path.realpath(HTC10Working))
-			config.set('SVNZipper', 'builds', os.path.realpath(buildsPath))
-		
-			# Writing our configuration file to 'example.cfg'
-			with open(configFile, 'wb') as configfile:
-				config.write(configfile)
-				
-			# Checkout folders
-			config.read(configFile)
-			destM8Checkout = config.get('SVNZipper', 'destM8Checkout')
-			destM9Checkout = config.get('SVNZipper', 'destM9Checkout')
-			dest10Checkout = config.get('SVNZipper', 'dest10Checkout')
-			
-			# Build folders
-			builds = config.get('SVNZipper', 'builds')
-			
-			raw_input("\nPress Enter to Return to the Main Menu...")
 		elif returnOption == "exit":
 			cls()
 			sys.exit()
@@ -433,7 +387,7 @@ if __name__ == "__main__":
 				logging.warning("%s does not exist, so this directory will be made", workingDest)
 				os.makedirs(workingDest)
 			try:
-				getRemoteRevision(svnClient, workingDest) == getLocalRevision(svnClient, workingDest)
+				getLocalRevision(svnClient, workingDest)
 				isWorking = True
 			except:
 				isWorking = False
