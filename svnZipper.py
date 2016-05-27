@@ -134,11 +134,7 @@ def buildZip(src, dst):
 	for dirname, subdirs, files in os.walk(src):
 		subdirs[:] = [d for d in subdirs if d not in exclude]
 		for filename in files:
-			if filename == "supersu.zip":
-				absname = os.path.abspath(os.path.join(dirname, filename))
-				arcname = absname[len(abs_src) + 1:]
-				total += os.path.getsize(absname)
-			if not filename.endswith( ('.bat','.exe', 'zip', '.cfg', '.zip.md5', '.md5') ):
+			if not ((dirname == src) and (filename.endswith( ('.bat','.exe', 'zip', '.cfg', '.zip.md5', '.md5') ))):
 				absname = os.path.abspath(os.path.join(dirname, filename))
 				arcname = absname[len(abs_src) + 1:]
 				total += os.path.getsize(absname)
@@ -147,15 +143,7 @@ def buildZip(src, dst):
 	for dirname, subdirs, files in os.walk(src):
 		subdirs[:] = [d for d in subdirs if d not in exclude]
 		for filename in files:
-			if filename == "supersu.zip":
-				absname = os.path.abspath(os.path.join(dirname, filename))
-				arcname = absname[len(abs_src) + 1:]
-				percent = 100 * current / total
-				sys.stdout.write("%sPROGRESS: %d%%   \r%s"% (bcolors.OKGREEN, percent, bcolors.ENDC))
-				sys.stdout.flush()
-				zf.write(absname, arcname)
-				current += os.path.getsize(absname)	
-			if not filename.endswith( ('.bat','.exe', '.zip', '.cfg', '.zip.md5', '.md5') ):
+			if not ((dirname == src) and (filename.endswith( ('.bat','.exe', 'zip', '.cfg', '.zip.md5', '.md5') ))):
 				absname = os.path.abspath(os.path.join(dirname, filename))
 				arcname = absname[len(abs_src) + 1:]
 				percent = 100 * current / total
