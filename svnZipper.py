@@ -136,8 +136,6 @@ def mainMenu(device):
 		elif option == 3:
 			return "m8"
 		elif option == 4:
-			return "config"
-		elif option == 5:
 			return "exit"
 
 
