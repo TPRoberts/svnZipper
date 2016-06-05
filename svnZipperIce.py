@@ -52,7 +52,7 @@ def welcome():
 	print bcolors.OKBLUE +  "$$$$$$\  $$$$$$\  $$$$$$$$\       $$\   $$\ $$\           $$\        $$\     $$\                       " + bcolors.ENDC
 	print bcolors.OKBLUE +  "\_$$  _|$$  __$$\ $$  _____|      $$$\  $$ |\__|          $$ |       $$ |    $$ |                      " + bcolors.ENDC
 	print bcolors.OKBLUE +  "  $$ |  $$ /  \__|$$ |            $$$$\ $$ |$$\  $$$$$$\  $$$$$$$\ $$$$$$\   $$ |$$\   $$\             " + bcolors.ENDC
-	print bcolors.OKBLUE +  "  $$ |  $$ |      $$$$$\          $$ $$\$$ |$$ |$$  __$$\ $$  __$$\\_$$  _|  $$ |$$ |  $$ |            " + bcolors.ENDC
+	print bcolors.OKBLUE +  "  $$ |  $$ |      $$$$$\          $$ $$\$$ |$$ |$$  __$$\ $$  __$$\\\_$$  _|  $$ |$$ |  $$ |            " + bcolors.ENDC
 	print bcolors.OKBLUE +  "  $$ |  $$ |      $$  __|         $$ \$$$$ |$$ |$$ /  $$ |$$ |  $$ | $$ |    $$ |$$ |  $$ |            " + bcolors.ENDC
 	print bcolors.OKBLUE +  "  $$ |  $$ |  $$\ $$ |            $$ |\$$$ |$$ |$$ |  $$ |$$ |  $$ | $$ |$$\ $$ |$$ |  $$ |            " + bcolors.ENDC
 	print bcolors.OKBLUE +  "$$$$$$\ \$$$$$$  |$$$$$$$$\       $$ | \$$ |$$ |\$$$$$$$ |$$ |  $$ | \$$$$  |$$ |\$$$$$$$ |            " + bcolors.ENDC
@@ -63,7 +63,7 @@ def welcome():
 	print bcolors.OKBLUE +  "$$$$$$$\            $$\ $$\       $$\        $$$$$$\                      $$\            $$\           " + bcolors.ENDC
 	print bcolors.OKBLUE +  "$$  __$$\           \__|$$ |      $$ |      $$  __$$\                     \__|           $$ |          " + bcolors.ENDC
 	print bcolors.OKBLUE +  "$$ |  $$ |$$\   $$\ $$\ $$ | $$$$$$$ |      $$ /  \__| $$$$$$$\  $$$$$$\  $$\  $$$$$$\ $$$$$$\         " + bcolors.ENDC
-	print bcolors.OKBLUE +  "$$$$$$$\ |$$ |  $$ |$$ |$$ |$$  __$$ |      \$$$$$$\  $$  _____|$$  __$$\ $$ |$$  __$$\\_$$  _|        " + bcolors.ENDC
+	print bcolors.OKBLUE +  "$$$$$$$\ |$$ |  $$ |$$ |$$ |$$  __$$ |      \$$$$$$\  $$  _____|$$  __$$\ $$ |$$  __$$\\\_$$  _|        " + bcolors.ENDC
 	print bcolors.OKBLUE +  "$$  __$$\ $$ |  $$ |$$ |$$ |$$ /  $$ |       \____$$\ $$ /      $$ |  \__|$$ |$$ /  $$ | $$ |          " + bcolors.ENDC
 	print bcolors.OKBLUE +  "$$ |  $$ |$$ |  $$ |$$ |$$ |$$ |  $$ |      $$\   $$ |$$ |      $$ |      $$ |$$ |  $$ | $$ |$$\       " + bcolors.ENDC
 	print bcolors.OKBLUE +  "$$$$$$$  |\$$$$$$  |$$ |$$ |\$$$$$$$ |      \$$$$$$  |\$$$$$$$\ $$ |      $$ |$$$$$$$  | \$$$$  |      " + bcolors.ENDC
@@ -311,8 +311,8 @@ if __name__ == "__main__":
 	
     # Remote SVN locations
 	htcM8Svn = "http://www.soldier9312-xda.de/svn/ice-m8/trunk"
-	htcM9Svn = "http://www.soldier9312-xda.de/svn/ice-m9/trunk/"
-	htc10Svn = "http://www.soldier9312-xda.de/svn/ice-10/trunk/"
+	htcM9Svn = "http://www.soldier9312-xda.de/svn/ice-m9/trunk"
+	htc10Svn = "http://www.soldier9312-xda.de/svn/ice-10/trunk"
      
 	# Checkout folders
 	destM8Checkout = workingDir
