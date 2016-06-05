@@ -1,0 +1,1 @@
+pyinstaller.exe --onefile --icon=snowflake.ico svnZipperIce.py
