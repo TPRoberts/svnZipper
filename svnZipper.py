@@ -3,8 +3,8 @@
 ###############################################################
 ########				 svnZipper.py				   ########
 ########			 Made by Thomas Roberts			   ######## 
-########				  27/05/2016				   ########
-########				 Version  1.1				   ########	
+########				  05/06/2016				   ########
+########				 Version  2.0				   ########	
 ###############################################################
 
 
@@ -314,14 +314,14 @@ if __name__ == "__main__":
 	htc10Svn = "http://www.soldier9312-xda.de/svn/leedroid-10/trunk"
      
 	# Checkout folders
-	destM8Checkout = workingDir
-	destM9Checkout = workingDir
-	dest10Checkout = workingDir
+	destM8Checkout = os.path.join(workingDir, "m8")
+	destM9Checkout = os.path.join(workingDir, "hime")
+	dest10Checkout = os.path.join(workingDir, "perfume")
 	
 	# Build folders
-	builds = os.path.join(workingDir, "Builds")
-	if not os.path.isdir(builds):
-		os.makedirs(builds)
+	buildM8 = os.path.join(destM8Checkout, "Builds")
+	buildM9 = os.path.join(destM9Checkout, "Builds")
+	build10 = os.path.join(dest10Checkout, "Builds")
 
 
 	if (os.name == "nt"):
@@ -347,12 +347,20 @@ if __name__ == "__main__":
 
 	if localRepoUrl == htcM8Svn:
 		device = "m8"
+		destM8Checkout = workingDir
 	elif localRepoUrl == htcM9Svn:
 		device = "m9"
+		destM9Checkout = workingDir
 	elif localRepoUrl == htc10Svn:
 		device = "htc10"
+		dest10Checkout = workingDir
 	else:
 		device = "all"
+
+	# Build folders
+	buildM8 = os.path.join(destM8Checkout, "Builds")
+	buildM9 = os.path.join(destM9Checkout, "Builds")
+	build10 = os.path.join(dest10Checkout, "Builds")
 
 	while (1):
 		# Display the Main Menu
@@ -364,16 +372,25 @@ if __name__ == "__main__":
 		if returnOption == "10":
 			workingDest = dest10Checkout
 			Svn = htc10Svn
+			builds=build10
+			if not os.path.isdir(builds):
+				os.makedirs(builds)
 			zipPrefix = "LeeDrOiD_10"
 			origonalFileCount = getFileCount(workingDest)
 		elif returnOption == "m9":
 			workingDest =  destM9Checkout
 			Svn = htcM9Svn
+			build=buildM9
+			if not os.path.isdir(builds):
+				os.makedirs(builds)
 			zipPrefix = "LeeDrOiD_M9"
 			origonalFileCount = getFileCount(workingDest)
 		elif returnOption == "m8":
 			workingDest =  destM8Checkout
 			Svn = htcM8Svn
+			builds=buildM8
+			if not os.path.isdir(builds):
+				os.makedirs(builds)
 			zipPrefix = "LeeDrOiD_M8"
 			origonalFileCount = getFileCount(workingDest)
 		elif returnOption == "exit":

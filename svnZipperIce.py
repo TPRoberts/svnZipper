@@ -4,7 +4,7 @@
 ########			  svnZipperIce.py				   ########
 ########			 Made by Thomas Roberts			   ######## 
 ########				  05/06/2016				   ########
-########				 Version  1.0				   ########	
+########				 Version  2.0				   ########	
 ###############################################################
 
 
@@ -153,7 +153,7 @@ def buildZip(src, dst):
 	for dirname, subdirs, files in os.walk(src):
 		subdirs[:] = [d for d in subdirs if d not in exclude]
 		for filename in files:
-			if not ((dirname == src) and (filename.endswith( ('.bat','.exe', 'zip', '.cfg', '.zip.md5', '.md5', 'linuxSvnZipper', 'svnZipper', ".txt") ))):
+			if not ((dirname == src) and (filename.endswith( ('.bat','.exe', 'zip', '.cfg', '.zip.md5', '.md5', 'linuxSvnZipper', 'svnZipper', ".txt", "BuildICE") ))):
 				absname = os.path.abspath(os.path.join(dirname, filename))
 				arcname = absname[len(abs_src) + 1:]
 				total += os.path.getsize(absname)
@@ -162,7 +162,7 @@ def buildZip(src, dst):
 	for dirname, subdirs, files in os.walk(src):
 		subdirs[:] = [d for d in subdirs if d not in exclude]
 		for filename in files:
-			if not ((dirname == src) and (filename.endswith( ('.bat','.exe', 'zip', '.cfg', '.zip.md5', '.md5', 'linuxSvnZipper', 'svnZipper', ".txt") ))):
+			if not ((dirname == src) and (filename.endswith( ('.bat','.exe', 'zip', '.cfg', '.zip.md5', '.md5', 'linuxSvnZipper', 'svnZipper', ".txt", "BuildICE") ))):
 				absname = os.path.abspath(os.path.join(dirname, filename))
 				arcname = absname[len(abs_src) + 1:]
 				percent = 100 * current / total
