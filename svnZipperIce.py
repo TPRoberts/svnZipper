@@ -3,8 +3,6 @@
 ###############################################################
 ########			  svnZipperIce.py				   ########
 ########			 Made by Thomas Roberts			   ######## 
-########				  05/06/2016				   ########
-########				 Version  2.0				   ########	
 ###############################################################
 
 
@@ -20,6 +18,8 @@ import md5
 import hashlib
 from subprocess import call
 from multiprocessing.pool import ThreadPool
+
+version = "1.0.3"
 
 # ASCII Colors for the terminal
 class bcolors:
@@ -71,7 +71,9 @@ def welcome():
 	print bcolors.OKBLUE +  "                                                                              $$ |                     " + bcolors.ENDC
 	print bcolors.OKBLUE +  "                                                                              $$ |                     " + bcolors.ENDC
 	print bcolors.OKBLUE +  "                                                                              \__|                     " + bcolors.ENDC
-
+	print bcolors.OKBLUE +  "" + bcolors.ENDC
+	print bcolors.OKBLUE +  "Version " + version + bcolors.ENDC
+	print bcolors.OKBLUE +  "" + bcolors.ENDC
 
 # Clear shell script
 # Input:- None
@@ -315,9 +317,39 @@ if __name__ == "__main__":
 	htc10Svn = "http://www.soldier9312-xda.de/svn/ice-10/trunk"
      
 	# Checkout folders
-	destM8Checkout = os.path.join(workingDir, "m8")
-	destM9Checkout = os.path.join(workingDir, "hime")
-	dest10Checkout = os.path.join(workingDir, "perfume")
+	oldM8Checkout = os.path.join(workingDir, "m8")
+	oldM9Checkout = os.path.join(workingDir, "hime")
+	old10Checkout = os.path.join(workingDir, "perfume")
+
+	destM8Checkout = os.path.join(workingDir, "ice_m8")
+	destM9Checkout = os.path.join(workingDir, "ice_hima")
+	dest10Checkout = os.path.join(workingDir, "ice_pme")
+
+	# Check if OLD Dir is there
+	if (os.path.isdir(oldM8Checkout)):
+		#so let's check and see if it is a working repo		
+		try:
+			getLocalRevision(svnClient, oldM8Checkout)
+			logging.info("Moving %s to %s due to a folder name change", oldM8Checkout, destM8Checkout)
+			shutil.move(oldM8Checkout, destM8Checkout)
+		except:
+			logging.debug("Found a old dir %s but it isn't a working repo", oldM8Checkout)
+	elif (os.path.isdir(oldM9Checkout)): 
+		#so let's check and see if it is a working repo		
+		try:
+			getLocalRevision(svnClient, oldM9Checkout)
+			logging.info("Moving %s to %s due to a folder name change", oldM9Checkout, destM9Checkout)
+			shutil.move(oldM9Checkout, destM9Checkout)
+		except:
+			logging.debug("Found a old dir %s but it isn't a working repo", oldM9Checkout)
+	elif (os.path.isdir(old10Checkout)): 
+		#so let's check and see if it is a working repo		
+		try:
+			getLocalRevision(svnClient, old10Checkout)
+			logging.info("Moving %s to %s due to a folder name change", old10Checkout, dest10Checkout)
+			shutil.move(old10Checkout, dest10Checkout)
+		except:
+			logging.debug("Found a old dir %s but it isn't a working repo", old10Checkout)
 	
 	# Build folders
 	buildM8 = os.path.join(destM8Checkout, "Builds")
@@ -376,7 +408,7 @@ if __name__ == "__main__":
 			builds = build10
 			if not os.path.isdir(builds):
 				os.makedirs(builds)
-			zipPrefix = "ICE_10"
+			zipPrefix = "ice_nightly_pme"
 			origonalFileCount = getFileCount(workingDest)
 		elif returnOption == "m9":
 			workingDest =  destM9Checkout
@@ -384,7 +416,7 @@ if __name__ == "__main__":
 			builds = buildM9
 			if not os.path.isdir(builds):
 				os.makedirs(builds)
-			zipPrefix = "ICE_M9"
+			zipPrefix = "ice_nightly_hima"
 			origonalFileCount = getFileCount(workingDest)
 		elif returnOption == "m8":
 			workingDest =  destM8Checkout
@@ -392,7 +424,7 @@ if __name__ == "__main__":
 			builds = buildM8
 			if not os.path.isdir(builds):
 				os.makedirs(builds)
-			zipPrefix = "ICE_M8"
+			zipPrefix = "ice_nightly_m8"
 			origonalFileCount = getFileCount(workingDest)
 		elif returnOption == "exit":
 			cls()
@@ -478,7 +510,7 @@ if __name__ == "__main__":
 			
 			if not os.path.isdir(builds):
 				os.makedirs(builds)
-			zipName = zipPrefix + "_R%d" % (getLocalRevision(svnClient, workingDest))
+			zipName = zipPrefix + "_r%d" % (getLocalRevision(svnClient, workingDest))
 			zipPath = os.path.join(builds, zipName)
 			if os.path.exists(zipPath+".zip"):
 				logging.info("%s.zip alread exists.", zipPath)
