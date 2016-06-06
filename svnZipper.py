@@ -19,7 +19,7 @@ import hashlib
 from subprocess import call
 from multiprocessing.pool import ThreadPool
 
-version = "1.0.3"
+version = "1.0.4"
 
 # ASCII Colors for the terminal
 class bcolors:
@@ -155,7 +155,7 @@ def buildZip(src, dst):
 	for dirname, subdirs, files in os.walk(src):
 		subdirs[:] = [d for d in subdirs if d not in exclude]
 		for filename in files:
-			if not ((dirname == src) and (filename.endswith( ('.bat','.exe', 'zip', '.cfg', '.zip.md5', '.md5', 'linuxSvnZipper', 'svnZipper') ))):
+			if not ((dirname == src) and (filename.endswith( ('.bat','.exe', 'zip', '.cfg', '.zip.md5', '.md5', 'linuxSvnZipper', 'svnZipper', 'macSvnZipper') ))):
 				absname = os.path.abspath(os.path.join(dirname, filename))
 				arcname = absname[len(abs_src) + 1:]
 				total += os.path.getsize(absname)
@@ -164,7 +164,7 @@ def buildZip(src, dst):
 	for dirname, subdirs, files in os.walk(src):
 		subdirs[:] = [d for d in subdirs if d not in exclude]
 		for filename in files:
-			if not ((dirname == src) and (filename.endswith( ('.bat','.exe', 'zip', '.cfg', '.zip.md5', '.md5', 'linuxSvnZipper', 'svnZipper') ))):
+			if not ((dirname == src) and (filename.endswith( ('.bat','.exe', 'zip', '.cfg', '.zip.md5', '.md5', 'linuxSvnZipper', 'svnZipper', 'macSvnZipper') ))):
 				absname = os.path.abspath(os.path.join(dirname, filename))
 				arcname = absname[len(abs_src) + 1:]
 				percent = 100 * current / total
