@@ -332,8 +332,8 @@ if __name__ == "__main__":
     # Init coloama for ASCII colours in the terminal
 	colorama.init()
 
-    # if the locale is not setup SVN can report errors handling non ascii file names
-    initLocale()
+	# if the locale is not setup SVN can report errors handling non ascii file names
+	initLocale()
     
 	# initiate pysvn client
 	svnClient = pysvn.Client()
