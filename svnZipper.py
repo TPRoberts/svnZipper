@@ -20,7 +20,7 @@ import locale
 from subprocess import call
 from multiprocessing.pool import ThreadPool
 
-version = "1.0.4"
+version = "1.0.5"
 
 # ASCII Colors for the terminal
 class bcolors:
