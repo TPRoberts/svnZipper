@@ -16,6 +16,7 @@ import colorama
 import time
 import md5
 import hashlib
+import locale
 from subprocess import call
 from multiprocessing.pool import ThreadPool
 
