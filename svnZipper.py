@@ -16,6 +16,7 @@ import colorama
 import time
 import md5
 import hashlib
+import locale
 from subprocess import call
 from multiprocessing.pool import ThreadPool
 
@@ -291,7 +292,29 @@ def checkArgs(path):
         os.makedirs(path)
 
     return returnValue
-							 
+
+def initLocale():
+    # init the locale
+    if sys.platform in ['win32','cygwin']:
+        locale.setlocale( locale.LC_ALL, '' )
+
+    else:
+        language_code, encoding = locale.getdefaultlocale()
+        if language_code is None:
+            language_code = 'en_GB'
+
+        if encoding is None:
+            encoding = 'UTF-8'
+        if encoding.lower() == 'utf':
+            encoding = 'UTF-8'
+
+        try:
+            # setlocale fails when params it does not understand are passed
+            locale.setlocale( locale.LC_ALL, '%s.%s' % (language_code, encoding) )
+        except locale.Error:
+            # force a locale that will work
+            locale.setlocale( locale.LC_ALL, 'en_GB.UTF-8' )
+    
 # Main
 if __name__ == "__main__":
 
@@ -307,6 +330,9 @@ if __name__ == "__main__":
     
     # Init coloama for ASCII colours in the terminal
 	colorama.init()
+    
+    # if the locale is not setup SVN can report errors handling non ascii file names
+    initLocale()
 	
 	# initiate pysvn client
 	svnClient = pysvn.Client()
