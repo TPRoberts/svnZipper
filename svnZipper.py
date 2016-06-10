@@ -183,36 +183,14 @@ def buildZip(src, dst):
 # Input:- String for working directory
 # Description: Checkout the working directory
 def checkoutSVN(svnID, remoteSvn, workingDir):
-	svnID.checkout(remoteSvn, workingDir)
+	svnID.checkout(remoteSvn, workingDir, recurse=True)
 	
 # Update the SVN
 # Input:- Object to svnID
 # Input:- String for working directory
 # Description: Update the working directory
 def updateSVN(svnID, workingDir):
-	svnID.update(workingDir)
-
-def getList(svnID, url):
-	list = svnID.list( url, recurse=True)
-	return int(len(list))
-	
-def getRemoteFileList(svnID, url):
-	number = 0
-	pool = ThreadPool(processes=1)
-	async_result = pool.apply_async(getList, (svnID, url))
-	while async_result.ready() == False:
-		sys.stdout.write("%sPROCESS: Reading %s   \r%s"% (bcolors.OKGREEN, url, bcolors.ENDC))
-		time.sleep(1)
-		sys.stdout.write("%sPROCESS: Reading %s.   \r%s"% (bcolors.OKGREEN, url, bcolors.ENDC))
-		time.sleep(1)
-		sys.stdout.write("%sPROCESS: Reading %s..   \r%s"% (bcolors.OKGREEN, url, bcolors.ENDC))
-		time.sleep(1)
-		sys.stdout.write("%sPROCESS: Reading %s...   \r%s"% (bcolors.OKGREEN, url, bcolors.ENDC))
-		time.sleep(1)
-		sys.stdout.flush()
-	sys.stdout.flush()
-	logging.info("Finsihed reading %s", url)
-	return async_result.get()
+	svnID.update(workingDir, recurse=True)
 	
 def getFileCount(path):
 	total = 0
