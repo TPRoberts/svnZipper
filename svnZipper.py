@@ -20,7 +20,7 @@ import locale
 from subprocess import call
 from multiprocessing.pool import ThreadPool
 
-version = "1.0.5"
+version = "1.0.6"
 
 # ASCII Colors for the terminal
 class bcolors:
@@ -91,14 +91,12 @@ def cls():
 def mainMenu(device):
 	cls()
 	welcome()
-	if device == "m8":
-		menuItems = ["Build "+bcolors.OKGREEN+"HTC One M8"+bcolors.ENDC+" Nightly zip", "Exit"]
-	elif device == "m9":
-		menuItems = ["Build "+bcolors.OKGREEN+"HTC One M9"+bcolors.ENDC+" Nightly zip", "Exit"]
+	if device == "htcu11":
+		menuItems = ["Build "+bcolors.OKGREEN+"HTC U11"+bcolors.ENDC+" Nightly zip", "Exit"]
 	elif device == "htc10":
 		menuItems = ["Build "+bcolors.OKGREEN+"HTC 10"+bcolors.ENDC+" Nightly zip", "Exit"]
 	else:
-		menuItems = ["Build "+bcolors.OKGREEN+"HTC 10"+bcolors.ENDC+" Nightly zip", "Build "+bcolors.OKGREEN+"HTC One M9"+bcolors.ENDC+" Nightly zip", "Build "+bcolors.OKGREEN+"HTC One M8"+bcolors.ENDC+" Nightly zip", "Exit"]
+		menuItems = ["Build "+bcolors.OKGREEN+"HTC U11"+bcolors.ENDC+" Nightly zip", "Build "+bcolors.OKGREEN+"HTC 10"+bcolors.ENDC+" Nightly zip", "Exit"]
 		
 	i = 1
 	print "Choice one of the following options:"
@@ -117,14 +115,9 @@ def mainMenu(device):
 	except ValueError:
 		logging.error("%s is not a valid option", option)
 		
-	if device == "m8":
+	if device == "htcu11":
 		if option == 1:
-			return "m8"
-		elif option == 2:
-			return "exit"
-	elif device == "m9":
-		if option == 1:
-			return "m9"
+			return "11"
 		elif option == 2:
 			return "exit"
 	elif device == "htc10":
@@ -134,12 +127,10 @@ def mainMenu(device):
 			return "exit"
 	else:
 		if option == 1:
-			return "10"
+			return "11"
 		elif option == 2:
-			return "m9"
+			return "10"
 		elif option == 3:
-			return "m8"
-		elif option == 4:
 			return "exit"
 
 
@@ -338,37 +329,17 @@ if __name__ == "__main__":
 	svnClient = pysvn.Client()
 	
     # Remote SVN locations
-	htcM8Svn = "http://www.soldier9312-xda.de/svn/leedroid-m8/trunk"
-	htcM9Svn = "http://www.soldier9312-xda.de/svn/leedroid-m9/trunk"
+	htcu11Svn = "http://www.soldier9312-xda.de/svn/leedroid-11/trunk"
 	htc10Svn = "http://www.soldier9312-xda.de/svn/leedroid-10/trunk"
      
 	# Checkout folders
-	oldM8Checkout = os.path.join(workingDir, "m8")
-	oldM9Checkout = os.path.join(workingDir, "hime")
 	old10Checkout = os.path.join(workingDir, "perfume")
 
-	destM8Checkout = os.path.join(workingDir, "LeeDrOiD_M8")
-	destM9Checkout = os.path.join(workingDir, "LeeDrOiD_HIMA")
+	destu11Checkout = os.path.join(workingDir, "LeeDrOiD_OCE")
 	dest10Checkout = os.path.join(workingDir, "LeeDrOiD_PME")
 
 	# Check if OLD Dir is there
-	if (os.path.isdir(oldM8Checkout)):
-		#so let's check and see if it is a working repo		
-		try:
-			getLocalRevision(svnClient, oldM8Checkout)
-			logging.info("Moving %s to %s due to a folder name change", oldM8Checkout, destM8Checkout)
-			shutil.move(oldM8Checkout, destM8Checkout)
-		except:
-			logging.debug("Found a old dir %s but it isn't a working repo", oldM8Checkout)
-	elif (os.path.isdir(oldM9Checkout)): 
-		#so let's check and see if it is a working repo		
-		try:
-			getLocalRevision(svnClient, oldM9Checkout)
-			logging.info("Moving %s to %s due to a folder name change", oldM9Checkout, destM9Checkout)
-			shutil.move(oldM9Checkout, destM9Checkout)
-		except:
-			logging.debug("Found a old dir %s but it isn't a working repo", oldM9Checkout)
-	elif (os.path.isdir(old10Checkout)): 
+	if (os.path.isdir(old10Checkout)): 
 		#so let's check and see if it is a working repo		
 		try:
 			getLocalRevision(svnClient, old10Checkout)
@@ -378,8 +349,7 @@ if __name__ == "__main__":
 			logging.debug("Found a old dir %s but it isn't a working repo", old10Checkout)
 	
 	# Build folders
-	buildM8 = os.path.join(destM8Checkout, "Builds")
-	buildM9 = os.path.join(destM9Checkout, "Builds")
+	buildu11 = os.path.join(destu11Checkout, "Builds")
 	build10 = os.path.join(dest10Checkout, "Builds")
 
 
@@ -403,13 +373,10 @@ if __name__ == "__main__":
 		localRepoUrl = svnClient.root_url_from_path(workingDir) + "/trunk"
 	else:
 		localRepoUrl = "all"
-
-	if localRepoUrl == htcM8Svn:
-		device = "m8"
-		destM8Checkout = workingDir
-	elif localRepoUrl == htcM9Svn:
-		device = "m9"
-		destM9Checkout = workingDir
+		
+	if localRepoUrl == htcu11Svn:
+		device = "htcu11"
+		destu11Checkout = workingDir
 	elif localRepoUrl == htc10Svn:
 		device = "htc10"
 		dest10Checkout = workingDir
@@ -417,8 +384,7 @@ if __name__ == "__main__":
 		device = "all"
 
 	# Build folders
-	buildM8 = os.path.join(destM8Checkout, "Builds")
-	buildM9 = os.path.join(destM9Checkout, "Builds")
+	buildu11 = os.path.join(destu11Checkout, "Builds")
 	build10 = os.path.join(dest10Checkout, "Builds")
 
 	while (1):
@@ -427,8 +393,15 @@ if __name__ == "__main__":
 
 		cls()
 		welcome()
-		
-		if returnOption == "10":
+		if returnOption == "11":
+			workingDest = destu11Checkout
+			Svn = htcu11Svn
+			builds=buildu11
+			if not os.path.isdir(builds):
+				os.makedirs(builds)
+			zipPrefix = "LeeDrOiD_OCE"
+			origonalFileCount = getFileCount(workingDest)		
+		elif returnOption == "10":
 			workingDest = dest10Checkout
 			Svn = htc10Svn
 			builds=build10
@@ -436,27 +409,11 @@ if __name__ == "__main__":
 				os.makedirs(builds)
 			zipPrefix = "LeeDrOiD_PME"
 			origonalFileCount = getFileCount(workingDest)
-		elif returnOption == "m9":
-			workingDest =  destM9Checkout
-			Svn = htcM9Svn
-			builds=buildM9
-			if not os.path.isdir(builds):
-				os.makedirs(builds)
-			zipPrefix = "LeeDrOiD_HIMA"
-			origonalFileCount = getFileCount(workingDest)
-		elif returnOption == "m8":
-			workingDest =  destM8Checkout
-			Svn = htcM8Svn
-			builds=buildM8
-			if not os.path.isdir(builds):
-				os.makedirs(builds)
-			zipPrefix = "LeeDrOiD_M8"
-			origonalFileCount = getFileCount(workingDest)
 		elif returnOption == "exit":
 			cls()
 			sys.exit()
 		
-		if returnOption == "10" or returnOption == "m9" or returnOption == "m8":
+		if returnOption == "10" or returnOption == "11":
 			if not os.path.isdir(workingDest):
 				logging.warning("%s does not exist, so this directory will be made", workingDest)
 				os.makedirs(workingDest)
