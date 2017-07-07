@@ -2,7 +2,7 @@
 
 ###############################################################
 ########				 svnZipper.py				   ########
-########			 Made by Thomas Roberts			   ######## 
+########			 Made by Thomas Roberts			   ########
 ###############################################################
 
 
@@ -20,7 +20,7 @@ import locale
 from subprocess import call
 from multiprocessing.pool import ThreadPool
 
-version = "1.0.6"
+version = "1.0.7"
 
 # ASCII Colors for the terminal
 class bcolors:
@@ -35,15 +35,15 @@ class bcolors:
 
 
 def getRemoteRevision(svnID, url):
-	headrev = pysvn.Revision( pysvn.opt_revision_kind.head )            
+	headrev = pysvn.Revision( pysvn.opt_revision_kind.head )
 	revlog = svnID.log( url, revision_start=headrev, revision_end=headrev, discover_changed_paths=False)
 	revision = revlog[0].revision.number
 	return int(revision)
-	
+
 def getLocalRevision(svnID, workingDir):
 	revision = svnID.info(workingDir).get("revision").number
 	return int(revision)
-	
+
 # welcome
 # Input:- None
 # Output:- None
@@ -79,7 +79,7 @@ def welcome():
 # Clear shell script
 # Input:- None
 # Output:- None
-# Description: This function will clear the shell 
+# Description: This function will clear the shell
 def cls():
 	os.system(['clear','cls'][os.name == 'nt'])
 
@@ -95,9 +95,11 @@ def mainMenu(device):
 		menuItems = ["Build "+bcolors.OKGREEN+"HTC U11"+bcolors.ENDC+" Nightly zip", "Exit"]
 	elif device == "htc10":
 		menuItems = ["Build "+bcolors.OKGREEN+"HTC 10"+bcolors.ENDC+" Nightly zip", "Exit"]
+	elif device == "m9":
+		menuItems = ["Build "+bcolors.OKGREEN+"HTC One M9"+bcolors.ENDC+" Nightly zip", "Exit"]
 	else:
-		menuItems = ["Build "+bcolors.OKGREEN+"HTC U11"+bcolors.ENDC+" Nightly zip", "Build "+bcolors.OKGREEN+"HTC 10"+bcolors.ENDC+" Nightly zip", "Exit"]
-		
+		menuItems = ["Build "+bcolors.OKGREEN+"HTC U11"+bcolors.ENDC+" Nightly zip", "Build "+bcolors.OKGREEN+"HTC 10"+bcolors.ENDC+" Nightly zip", "Build "+bcolors.OKGREEN+"HTC One M9"+bcolors.ENDC+" Nightly zip", "Exit"]
+
 	i = 1
 	print "Choice one of the following options:"
 	for item in menuItems:
@@ -114,7 +116,7 @@ def mainMenu(device):
 			logging.debug("You selected option %d '%s'", option,menuItems[option-1])
 	except ValueError:
 		logging.error("%s is not a valid option", option)
-		
+
 	if device == "htcu11":
 		if option == 1:
 			return "11"
@@ -125,12 +127,19 @@ def mainMenu(device):
 			return "10"
 		elif option == 2:
 			return "exit"
+	elif device == "m9":
+		if option == 1:
+			return "m9"
+		elif option == 2:
+			return "exit"
 	else:
 		if option == 1:
 			return "11"
 		elif option == 2:
 			return "10"
 		elif option == 3:
+			return "m9"
+		elif option == 4:
 			return "exit"
 
 
@@ -151,7 +160,7 @@ def buildZip(src, dst):
 				absname = os.path.abspath(os.path.join(dirname, filename))
 				arcname = absname[len(abs_src) + 1:]
 				total += os.path.getsize(absname)
-	
+
 	current = 0
 	for dirname, subdirs, files in os.walk(src):
 		subdirs[:] = [d for d in subdirs if d not in exclude]
@@ -175,7 +184,7 @@ def buildZip(src, dst):
 # Description: Checkout the working directory
 def checkoutSVN(svnID, remoteSvn, workingDir):
 	svnID.checkout(remoteSvn, workingDir)
-	
+
 # Update the SVN
 # Input:- Object to svnID
 # Input:- String for working directory
@@ -186,7 +195,7 @@ def updateSVN(svnID, workingDir):
 def getList(svnID, url):
 	list = svnID.list( url, recurse=True)
 	return int(len(list))
-	
+
 def getRemoteFileList(svnID, url):
 	number = 0
 	pool = ThreadPool(processes=1)
@@ -204,7 +213,7 @@ def getRemoteFileList(svnID, url):
 	sys.stdout.flush()
 	logging.info("Finsihed reading %s", url)
 	return async_result.get()
-	
+
 def getFileCount(path):
 	total = 0
 	exclude = [".svn"]
@@ -218,27 +227,27 @@ def getFileCount(path):
 ## Yes No Promt
 def queryYesNo(question, default="yes"):
 
-    valid = {"yes": True, "y": True, "ye": True,
-             "no": False, "n": False}
-    if default is None:
-        prompt = " [y/n] "
-    elif default == "yes":
-        prompt = " [Y/n] "
-    elif default == "no":
-        prompt = " [y/N] "
-    else:
-        raise ValueError("invalid default answer: '%s'" % default)
+	valid = {"yes": True, "y": True, "ye": True,
+			"no": False, "n": False}
+	if default is None:
+		prompt = " [y/n] "
+	elif default == "yes":
+		prompt = " [Y/n] "
+	elif default == "no":
+		prompt = " [y/N] "
+	else:
+		raise ValueError("invalid default answer: '%s'" % default)
 
-    while True:
-        sys.stdout.write(question + prompt)
-        choice = raw_input().lower()
-        if default is not None and choice == '':
-            return valid[default]
-        elif choice in valid:
-            return valid[choice]
-        else:
-            sys.stdout.write("Please respond with 'yes' or 'no' "
-                             "(or 'y' or 'n').\n")
+	while True:
+		sys.stdout.write(question + prompt)
+		choice = raw_input().lower()
+		if default is not None and choice == '':
+			return valid[default]
+		elif choice in valid:
+			return valid[choice]
+		else:
+			sys.stdout.write("Please respond with 'yes' or 'no' "
+							 "(or 'y' or 'n').\n")
 
 def md5(zipPath, zipName):
 	fname = zipPath + ".zip"
@@ -246,7 +255,7 @@ def md5(zipPath, zipName):
 	with open(fname, "rb") as f:
 		for chunk in iter(lambda: f.read(4096), b""):
 			hash_md5.update(chunk)
-			
+
 	f = open(zipPath+".zip"+".md5", 'w')
 	f.write(hash_md5.hexdigest()+ " *"+ zipName + ".zip")
 	f.close()
@@ -274,38 +283,38 @@ def makeMd5Sum(path, zipName):
 # This function will check the source and destination directory
 def checkArgs(path):
 
-    returnValue = True
-    
+	returnValue = True
 
-    if not os.path.isdir(path):
-        logging.warning("Directory %s doesn't exist", path)
-        logging.info("Making directory as it doesn't exists")
-        os.makedirs(path)
 
-    return returnValue
+	if not os.path.isdir(path):
+		logging.warning("Directory %s doesn't exist", path)
+		logging.info("Making directory as it doesn't exists")
+		os.makedirs(path)
+
+	return returnValue
 
 def initLocale():
-    # init the locale
-    if sys.platform in ['win32','cygwin']:
-        locale.setlocale( locale.LC_ALL, '' )
+	# init the locale
+	if sys.platform in ['win32','cygwin']:
+		locale.setlocale( locale.LC_ALL, '' )
 
-    else:
-        language_code, encoding = locale.getdefaultlocale()
-        if language_code is None:
-            language_code = 'en_GB'
+	else:
+		language_code, encoding = locale.getdefaultlocale()
+		if language_code is None:
+			language_code = 'en_GB'
 
-        if encoding is None:
-            encoding = 'UTF-8'
-        if encoding.lower() == 'utf':
-            encoding = 'UTF-8'
+		if encoding is None:
+			encoding = 'UTF-8'
+		if encoding.lower() == 'utf':
+			encoding = 'UTF-8'
 
-        try:
-            # setlocale fails when params it does not understand are passed
-            locale.setlocale( locale.LC_ALL, '%s.%s' % (language_code, encoding) )
-        except locale.Error:
-            # force a locale that will work
-            locale.setlocale( locale.LC_ALL, 'en_GB.UTF-8' )
-    
+		try:
+			# setlocale fails when params it does not understand are passed
+			locale.setlocale( locale.LC_ALL, '%s.%s' % (language_code, encoding) )
+		except locale.Error:
+			# force a locale that will work
+			locale.setlocale( locale.LC_ALL, 'en_GB.UTF-8' )
+
 # Main
 if __name__ == "__main__":
 
@@ -315,39 +324,50 @@ if __name__ == "__main__":
 	# Warning: This is a warning
 	# Error: This is a error
 	logging.basicConfig(stream=sys.stdout, level=logging.INFO, format='%(levelname)s: %(message)s')
-	
+
 	# Current directory
 	workingDir = os.path.dirname(os.path.realpath(__file__))
-    
-    # Init coloama for ASCII colours in the terminal
+
+	# Init coloama for ASCII colours in the terminal
 	colorama.init()
-    
+
 	# if the locale is not setup SVN can report errors handling non ascii file names
 	initLocale()
-	
+
 	# initiate pysvn client
 	svnClient = pysvn.Client()
-	
-    # Remote SVN locations
+
+	# Remote SVN locations
 	htcu11Svn = "http://www.soldier9312-xda.de/svn/leedroid-11/trunk"
 	htc10Svn = "http://www.soldier9312-xda.de/svn/leedroid-10/trunk"
-     
+	htcM9Svn = "http://www.soldier9312-xda.de/svn/leedroid-m9/trunk"
+
 	# Checkout folders
+	oldM9Checkout = os.path.join(workingDir, "hime")
 	old10Checkout = os.path.join(workingDir, "perfume")
 
 	destu11Checkout = os.path.join(workingDir, "LeeDrOiD_OCE")
 	dest10Checkout = os.path.join(workingDir, "LeeDrOiD_PME")
+	destM9Checkout = os.path.join(workingDir, "LeeDrOiD_HIMA")
 
 	# Check if OLD Dir is there
-	if (os.path.isdir(old10Checkout)): 
-		#so let's check and see if it is a working repo		
+	if (os.path.isdir(oldM9Checkout)):
+		#so let's check and see if it is a working repo
+		try:
+			getLocalRevision(svnClient, oldM9Checkout)
+			logging.info("Moving %s to %s due to a folder name change", oldM9Checkout, destM9Checkout)
+			shutil.move(oldM9Checkout, destM9Checkout)
+		except:
+			logging.debug("Found a old dir %s but it isn't a working repo", oldM9Checkout)
+	elif (os.path.isdir(old10Checkout)):
+		#so let's check and see if it is a working repo
 		try:
 			getLocalRevision(svnClient, old10Checkout)
 			logging.info("Moving %s to %s due to a folder name change", old10Checkout, dest10Checkout)
 			shutil.move(old10Checkout, dest10Checkout)
 		except:
 			logging.debug("Found a old dir %s but it isn't a working repo", old10Checkout)
-	
+
 	# Build folders
 	buildu11 = os.path.join(destu11Checkout, "Builds")
 	build10 = os.path.join(dest10Checkout, "Builds")
@@ -359,7 +379,7 @@ if __name__ == "__main__":
 	else:
 		windows = False
 		print "\x1b[8;60;140t"
-		
+
 	device = None
 	localRepoUrl = None
 	# Determin which repo we are in
@@ -368,24 +388,28 @@ if __name__ == "__main__":
 		isWorking = True
 	except:
 		isWorking = False
-		
+
 	if isWorking:
 		localRepoUrl = svnClient.root_url_from_path(workingDir) + "/trunk"
 	else:
 		localRepoUrl = "all"
-		
+
 	if localRepoUrl == htcu11Svn:
 		device = "htcu11"
 		destu11Checkout = workingDir
 	elif localRepoUrl == htc10Svn:
 		device = "htc10"
 		dest10Checkout = workingDir
+	elif localRepoUrl == htcM9Svn:
+		device = "m9"
+		destM9Checkout = workingDir
 	else:
 		device = "all"
 
 	# Build folders
 	buildu11 = os.path.join(destu11Checkout, "Builds")
 	build10 = os.path.join(dest10Checkout, "Builds")
+	buildM9 = os.path.join(destM9Checkout, "Builds")
 
 	while (1):
 		# Display the Main Menu
@@ -400,7 +424,7 @@ if __name__ == "__main__":
 			if not os.path.isdir(builds):
 				os.makedirs(builds)
 			zipPrefix = "LeeDrOiD_OCE"
-			origonalFileCount = getFileCount(workingDest)		
+			origonalFileCount = getFileCount(workingDest)
 		elif returnOption == "10":
 			workingDest = dest10Checkout
 			Svn = htc10Svn
@@ -409,11 +433,19 @@ if __name__ == "__main__":
 				os.makedirs(builds)
 			zipPrefix = "LeeDrOiD_PME"
 			origonalFileCount = getFileCount(workingDest)
+		elif returnOption == "m9":
+			workingDest =  destM9Checkout
+			Svn = htcM9Svn
+			builds=buildM9
+			if not os.path.isdir(builds):
+				os.makedirs(builds)
+			zipPrefix = "LeeDrOiD_HIMA"
+			origonalFileCount = getFileCount(workingDest)
 		elif returnOption == "exit":
 			cls()
 			sys.exit()
-		
-		if returnOption == "10" or returnOption == "11":
+
+		if returnOption == "10" or returnOption == "11" or returnOption == "m9":
 			if not os.path.isdir(workingDest):
 				logging.warning("%s does not exist, so this directory will be made", workingDest)
 				os.makedirs(workingDest)
@@ -422,7 +454,7 @@ if __name__ == "__main__":
 				isWorking = True
 			except:
 				isWorking = False
-				
+
 			if not isWorking:
 				logging.info("Checking out %s", Svn)
 
@@ -443,7 +475,7 @@ if __name__ == "__main__":
 					time.sleep(1)
 					sys.stdout.flush()
 				sys.stdout.flush()
-				logging.info("Finsihed checking out %s into %s", Svn, workingDest) 
+				logging.info("Finsihed checking out %s into %s", Svn, workingDest)
 			else:
 				if (getRemoteRevision(svnClient, workingDest) == getLocalRevision(svnClient, workingDest)):
 					logging.info("Your local repository is alread up to date")
@@ -490,7 +522,7 @@ if __name__ == "__main__":
 						sys.stdout.flush()
 					sys.stdout.flush()
 					logging.info("Finsihed updated %s", workingDest)
-			
+
 			if not os.path.isdir(builds):
 				os.makedirs(builds)
 			zipName = zipPrefix + "_R%d" % (getLocalRevision(svnClient, workingDest))
@@ -516,6 +548,6 @@ if __name__ == "__main__":
 				if os.path.isfile(zipPath+".zip"):
 					logging.info("Making MD5 checksum")
 					makeMd5Sum(zipPath, zipName)
-					
+
 			raw_input("\nPress Enter to Return to the Main Menu...")
 		cls()
