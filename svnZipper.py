@@ -20,7 +20,7 @@ import locale
 from subprocess import call
 from multiprocessing.pool import ThreadPool
 
-version = "1.0.7"
+version = "1.0.8"
 
 # ASCII Colors for the terminal
 class bcolors:
@@ -338,9 +338,9 @@ if __name__ == "__main__":
 	svnClient = pysvn.Client()
 
 	# Remote SVN locations
-	htcu11Svn = "http://www.soldier9312-xda.de/svn/leedroid-11/trunk"
-	htc10Svn = "http://www.soldier9312-xda.de/svn/leedroid-10/trunk"
-	htcM9Svn = "http://www.soldier9312-xda.de/svn/leedroid-m9/trunk"
+	htcu11Svn = "http://www.renovate-ice.com/svn/leedroid-11/trunk"
+	htc10Svn = "http://www.renovate-ice.com/svn/leedroid-10/trunk"
+	htcM9Svn = "http://www.renovate-ice.com/svn/leedroid-m9/trunk"
 
 	# Checkout folders
 	oldM9Checkout = os.path.join(workingDir, "hime")
